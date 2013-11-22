@@ -21,6 +21,8 @@ module Resque
       end
 
       def save
+
+        exception ||= StandardError.new("Got a nil exception at #{__FILE__}:#{__LINE__}")
         self.class.klass.notify_or_ignore(exception,
           :parameters => {
             :payload_class => payload['class'].to_s,
