@@ -289,6 +289,7 @@ module Resque
     # Given an exception object, hands off the needed parameters to
     # the Failure module.
     def fail(exception)
+      exception ||= StandardError.new("Got a nil exception at #{__FILE__}:#{__LINE__}")
       run_failure_hooks(exception)
       Failure.create \
         :payload   => payload,

@@ -232,6 +232,7 @@ module Resque
     def report_failed_job(job,exception)
       log "#{job.inspect} failed: #{exception.inspect}"
       begin
+        exception ||= StandardError.new("Got a nil exception at #{__FILE__}:#{__LINE__}")
         job.fail(exception)
       rescue Object => exception
         log "Received exception when reporting failure: #{exception.inspect}"
