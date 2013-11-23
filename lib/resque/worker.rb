@@ -196,6 +196,7 @@ module Resque
       rescue Object => e
         log "#{job.inspect} failed: #{e.inspect}"
         begin
+          e ||= StandardError.new("Got a nil exception at #{__FILE__}:#{__LINE__}")
           job.fail(e)
         rescue Object => e
           log "Received exception when reporting failure: #{e.inspect}"
