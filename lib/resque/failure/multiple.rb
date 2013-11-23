@@ -24,6 +24,7 @@ module Resque
 
       # The number of failures.
       def self.count(*args)
+        return 0 if classes.nil? || classes.first.nil?
         classes.first.count(*args)
       end
 
