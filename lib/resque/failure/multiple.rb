@@ -5,7 +5,11 @@ module Resque
     class Multiple < Base
 
       class << self
-        attr_accessor :classes
+        attr_writer :classes
+
+        def classes
+          return @classes || []
+        end
       end
 
       def self.configure
