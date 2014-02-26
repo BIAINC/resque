@@ -21,12 +21,22 @@ module Resque
       end
 
       def save
+        exception = tweak_exception(self.exception)
         ::Airbrake.notify_or_ignore(exception,
             :parameters => {
             :payload_class => payload['class'].to_s,
             :payload_args => payload['args'].inspect
             }
           )
+      end
+
+      def tweak_exception(ex)
+        return ex if ex && ex.message && ex.message.length > 0
+        begin
+          raise "Got exception without message. Type: #{ex.class}. Backtrace: #{ex.backtrace}"
+        rescue => e
+          e
+        end
       end
     end
   end
