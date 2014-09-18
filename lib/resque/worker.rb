@@ -607,6 +607,9 @@ module Resque
     # Returns a hash explaining the Job we're currently processing, if any.
     def job
       decode(redis.get("worker:#{self}")) || {}
+    rescue ::TypeError => e
+      #TODO: remove this once TD-8779 has been fixed
+      raise "TD-8779: Failed to decode value \"#{redis.get("worker:#{self}")}\""
     end
     alias_method :processing, :job
 
