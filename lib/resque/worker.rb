@@ -159,6 +159,7 @@ module Resque
     # Also accepts a block which will be passed the job as soon as it
     # has completed processing. Useful for testing.
     def work(interval = 5.0, &block)
+      Logging.log(:info, "TD-8779: starting the worker")
       interval = Float(interval)
       $0 = "resque: Starting"
       startup
@@ -209,6 +210,10 @@ module Resque
 
       unregister_worker
     rescue Exception => exception
+      Logging.log(:fatal, "TD-8779 Exception Details")
+      Logging.log(:fatal, ">>>> class: #{exception.class}")
+      Logging.log(:fatal, ">>>> message: #{exception.message}")
+      Logging.log(:fatal, ">>>> backtrace: #{exception.backtrace}")
       unless exception.class == SystemExit && !@child && run_at_exit_hooks
         log "Failed to start worker : #{exception.inspect}"
 
