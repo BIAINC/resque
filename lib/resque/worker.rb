@@ -346,7 +346,7 @@ module Resque
       Kernel.warn "WARNING: This way of doing signal handling is now deprecated. Please see http://hone.heroku.com/resque/2012/08/21/resque-signals.html for more info." unless term_child or $TESTING
       enable_gc_optimizations
       register_signal_handlers
-      prune_dead_workers
+      prune_dead_workers(worker_pids.reject{ |pid| pid == Process.pid })
       run_hook :before_first_fork
       register_worker
 
@@ -494,20 +494,12 @@ module Resque
     #
     # By checking the current Redis state against the actual
     # environment, we can determine if Redis is old and clean it up a bit.
-    def prune_dead_workers
+    def prune_dead_workers(known_workers=nil)
       all_workers = Worker.all
-      known_workers = worker_pids unless all_workers.empty?
+      known_workers = worker_pids if !all_workers.empty? && known_workers.nil?
       all_workers.each do |worker|
         host, pid, worker_queues_raw = worker.id.split(':')
         worker_queues = worker_queues_raw.split(",")
-        unless @queues.include?("*") || (worker_queues.to_set == @queues.to_set)
-          # If the worker we are trying to prune does not belong to the queues
-          # we are listening to, we should not touch it. 
-          # Attempt to prune a worker from different queues may easily result in
-          # an unknown class exception, since that worker could easily be even 
-          # written in different language.
-          next
-        end
         next unless host == hostname
         next if known_workers.include?(pid)
         log! "Pruning dead worker: #{worker}"
