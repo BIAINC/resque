@@ -679,7 +679,7 @@ module Resque
     #
     def linux_worker_pids
       `ps -A -o pid,command | grep "[r]esque" | grep -v "resque-web"`.split("\n").map do |line|
-        line.split(' ')[0]
+        line.split(' ')[0].to_i
       end
     end
 
@@ -692,7 +692,7 @@ module Resque
         real_pid = line.split(' ')[0]
         pargs_command = `pargs -a #{real_pid} 2>/dev/null | grep [r]esque | grep -v "resque-web"`
         if pargs_command.split(':')[1] == " resque-#{Resque::Version}"
-          real_pid
+          real_pid.to_i
         end
       end.compact
     end
